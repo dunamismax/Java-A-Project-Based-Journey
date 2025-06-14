@@ -1,168 +1,99 @@
 /**
- * @file 8_YourFirstClass.java
- * @author dunamismax
- * @date 2025-06-11
+ * Welcome to Object-Oriented Programming (OOP)!
  *
- * @brief THE BIG LEAP: From procedural code to Object-Oriented Programming
- *        (OOP) by creating a custom class.
+ * This lesson introduces the most important concept in Java: the class.
+ * A CLASS is a blueprint for creating objects. (e.g., the architectural plan
+ * for a house)
+ * An OBJECT is an instance of a class, with its own data. (e.g., your specific
+ * house built from the plan)
  *
- *        ---
+ * In this file, we define a `Car` blueprint and then create and use actual
+ * `Car` objects.
  *
- *        ## The Object-Oriented Leap: Creating Blueprints
- *
- *        Until now, we have been writing code in a "procedural" style inside
- *        the static `main`
- *        method. This is great for simple scripts, but for building complex
- *        applications, we
- *        need a better way to structure our code. Welcome to **Object-Oriented
- *        Programming (OOP)**.
- *
- *        The core idea of OOP is to model real-world things (or concepts) as
- *        **objects**. An object
- *        bundles its own data and behavior together.
- *
- *        - A **Class** is the **blueprint** or template for creating objects.
- *        It defines the properties
- *        (data) and actions (methods) that all objects of that type will have.
- *        Think of it as a cookie cutter. [1, 2]
- *        - An **Object** is a specific **instance** of a class. It's the actual
- *        cookie you create
- *        using the cookie cutter. You can create many objects from a single
- *        class, each with its
- *        own unique data. [1, 2, 7]
- *
- *        ### What you will learn:
- *        - The fundamental difference between a class and an object.
- *        - How to define a class with **instance variables** (fields) to hold
- *        an object's state. [9, 13]
- *        - How to define **instance methods** to represent an object's
- *        behavior. [9]
- *        - How to create objects (instances) from your class using the `new`
- *        keyword. [1]
- *        - How to use the dot operator (`.`) to access an object's fields and
- *        methods. [4]
- *
- *        ### Static vs. Instance
- *        - `static` members (like our previous methods) belong to the **class
- *        itself**.
- *        - **Instance** members (what we are creating now) belong to each
- *        individual **object**.
- *        Every `Car` object will have its OWN `color` and its OWN
- *        `currentSpeed`.
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac YourFirstClass.java
+ * 2. Run: java YourFirstClass
  */
 
-// --- The Blueprint: The `Car` Class ---
-// Note: For simplicity, we are defining this class in the same file. In larger
-// projects,
-// each public class gets its own `.java` file. A single file can only have one
-// public class.
+// --- THE BLUEPRINT ---
+// This `Car` class is our template. In real projects, this would be in its own
+// `Car.java` file.
 class Car {
 
-    // --- 1. Instance Variables (Fields or Properties) ---
-    // These variables define the "state" of a Car object. Each Car object
-    // we create will get its own separate set of these variables.
+    // --- 1. Fields (Instance Variables) ---
+    // These variables store the data for each individual car object.
+    // Every car we create will have its own copy of these.
     String model;
     String color;
     int year;
-    double currentSpeed; // a default value of 0.0 is assigned
+    double currentSpeed;
 
-    // --- 2. Instance Methods (Behaviors or Actions) ---
-    // These methods define what a Car object can "do". They can access and
-    // modify the instance variables of the object they belong to.
+    // --- 2. Methods (Behaviors) ---
+    // These methods define the actions a car object can perform.
+    // They can use the object's own fields (like `model` or `currentSpeed`).
 
-    /**
-     * @brief A simple behavior that simulates starting the car's engine.
-     */
-    void startEngine() {
-        System.out.println("The " + color + " " + model + "'s engine has started.");
-    }
-
-    /**
-     * @brief Increases the car's current speed.
-     * @param amount The speed to increase by (in mph).
-     */
+    // Increases the car's speed.
     void accelerate(double amount) {
-        currentSpeed += amount; // same as currentSpeed = currentSpeed + amount;
-        System.out.println("Accelerating... Current speed is now " + currentSpeed + " mph.");
+        currentSpeed += amount;
+        System.out.println(this.model + " is accelerating. Speed is now " + currentSpeed + " mph.");
     }
 
-    /**
-     * @brief Resets the car's speed to 0.
-     */
+    // Stops the car.
     void brake() {
         currentSpeed = 0;
-        System.out.println("Braking... The car has stopped.");
+        System.out.println(this.model + " is braking and has stopped.");
     }
 
-    /**
-     * @brief Displays all the information about this specific car instance.
-     *        Note how it uses the object's own instance variables.
-     */
+    // Displays the current state of this specific car.
     void displayInfo() {
-        System.out.println("--- Car Details ---");
-        System.out.println("Model: " + model);
-        System.out.println("Color: " + color);
-        System.out.println("Year: " + year);
-        System.out.println("Current Speed: " + currentSpeed + " mph");
-        System.out.println("-------------------");
+        System.out.println("--- Car Info ---");
+        System.out.println("Model: " + this.year + " " + this.color + " " + this.model);
+        System.out.println("Speed: " + this.currentSpeed + " mph");
+        System.out.println("----------------");
     }
 }
 
-// --- The Main Application Class ---
-// This class contains our `main` method, which will create and use objects of
-// our new `Car` class.
+// --- THE MAIN APPLICATION ---
+// This class will create and use objects from our Car blueprint.
 public class YourFirstClass {
 
     public static void main(String[] args) {
 
-        System.out.println("Welcome to the Object-Oriented world!");
-
-        // --- 3. Instantiation: Creating Objects from the Class ---
-        // We use the `new` keyword followed by the class name to create an instance (an
-        // object).
-        // `myCar` is a variable that holds a reference to our newly created Car object
-        // in memory.
+        // --- 3. Creating Objects (Instantiation) ---
+        // We use the `new` keyword to create an actual object from the Car class.
+        // `myCar` and `neighborsCar` are two separate, independent objects in memory.
         Car myCar = new Car();
+        Car neighborsCar = new Car();
 
-        // Let's create another Car object. This object is completely separate from
-        // `myCar`.
-        Car neighborCar = new Car();
-
-        // --- 4. Setting the State (Using Dot Notation) ---
-        // We use the dot operator `.` to access the instance variables of a specific
-        // object.
-        System.out.println("\nSetting the state of myCar...");
-        myCar.model = "Mustang";
+        // --- 4. Setting the Data for Each Object ---
+        // We use the dot (.) operator to set the fields for each object.
+        myCar.model = "Tesla Model S";
         myCar.color = "Red";
-        myCar.year = 2023;
+        myCar.year = 2024;
 
-        System.out.println("Setting the state of neighborCar...");
-        neighborCar.model = "Civic";
-        neighborCar.color = "Blue";
-        neighborCar.year = 2021;
+        neighborsCar.model = "Honda Civic";
+        neighborsCar.color = "Blue";
+        neighborsCar.year = 2020;
 
-        // --- 5. Calling Methods (Using Dot Notation) ---
-        // We use the dot operator `.` to call the methods on a specific object.
-        // Let's see the initial state of both cars.
+        // --- 5. Calling Methods on Each Object ---
+        // Each car has its own data, so calling the same method produces different
+        // results.
+        System.out.println("Initial state of cars:");
         myCar.displayInfo();
-        neighborCar.displayInfo(); // Notice how each object has its own data.
+        neighborsCar.displayInfo();
 
-        // Now let's perform some actions.
-        System.out.println("\n--- Performing Actions ---");
-        myCar.startEngine();
-        myCar.accelerate(75.5);
+        System.out.println("\nTaking the cars for a drive...");
+        myCar.accelerate(100.5);
+        neighborsCar.accelerate(60.0);
 
-        neighborCar.startEngine();
-        neighborCar.accelerate(40);
+        // Check the state again. Notice each car has its own, separate speed.
+        myCar.displayInfo();
+        neighborsCar.displayInfo();
 
-        // Let's check the state again.
-        System.out.println("\n--- Final State ---");
-        myCar.displayInfo(); // Speed has changed.
-        neighborCar.displayInfo(); // Speed has changed, but is different from myCar.
-
-        // And finally, let's brake myCar.
+        // Now, let's stop only one of the cars.
+        System.out.println("\nStopping my car...");
         myCar.brake();
         myCar.displayInfo();
+        neighborsCar.displayInfo(); // The neighbor's car is unaffected.
     }
 }

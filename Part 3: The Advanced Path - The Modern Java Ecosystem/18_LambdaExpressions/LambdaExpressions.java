@@ -1,125 +1,88 @@
 
 /**
- * @file 18_LambdaExpressions.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson introduces Lambda Expressions, a core feature of modern functional Java.
  *
- * @brief Embraces Functional Java by introducing concise, powerful anonymous functions (Lambdas).
+ * A lambda is an anonymous (unnamed) function that you can treat like a value.
+ * Its main purpose is to pass a block of code—a behavior—as an argument to a method.
+ * This is most commonly used with collections to perform actions, filtering, or transformations.
  *
- * ---
+ * Basic Syntax: (parameters) -> { body }
  *
- * ## The Shift to Functional Programming: Lambda Expressions
- *
- * Introduced in Java 8, **Lambda Expressions** fundamentally changed how Java developers write code.
- * A lambda expression is essentially an **anonymous function**—a function without a name that
- * you can treat as a value, pass to methods, or store in a variable. [2, 11]
- *
- * This feature allows Java to adopt a more **functional programming style**, leading to more
- * expressive, concise, and readable code, especially when working with collections of data. [3]
- *
- * ### What are they for?
- *
- * A lambda expression provides the implementation for a **Functional Interface**. A functional
- * interface is any interface that contains exactly **one abstract method**. [4, 6] The lambda
- * expression's body is matched to that single method.
- *
- * ### What you will learn:
- * - The syntax of a lambda expression: `(parameters) -> { body }`.
- * - The concept of a `FunctionalInterface` and the `@FunctionalInterface` annotation.
- * - How to replace verbose anonymous inner classes with clean lambda expressions.
- * - How to use common built-in functional interfaces from `java.util.function` like `Predicate`, `Function`, and `Consumer`.
- * - **Method References (`::`)**: An even shorter syntax for some lambdas. [13]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac LambdaExpressions.java
+ * 2. Run:     java LambdaExpressions
  */
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
-
-// --- 1. A Functional Interface ---
-// An interface with exactly one abstract method. The annotation is optional
-// but is a best practice as it tells the compiler to enforce this rule. [6]
-@FunctionalInterface
-interface MathOperation {
-    int operate(int a, int b);
-}
 
 public class LambdaExpressions {
 
+    // A simple record to represent our data.
+    record Product(String name, double price) {
+    }
+
     public static void main(String[] args) {
 
-        // --- 2. Implementing an Interface: The Old vs. The New ---
+        List<Product> products = new ArrayList<>(List.of(
+                new Product("Laptop", 1200.00),
+                new Product("Mouse", 25.00),
+                new Product("Keyboard", 75.00),
+                new Product("Monitor", 300.00)));
 
-        // The "Old Way" (before Java 8): Using an Anonymous Inner Class
-        // This is verbose and boilerplate-heavy.
-        MathOperation addition_old = new MathOperation() {
-            @Override
-            public int operate(int a, int b) {
-                return a + b;
-            }
-        };
-        System.out.println("Result (Old Way): " + addition_old.operate(10, 5));
+        // --- 1. Performing an Action on Each Item (`forEach`) ---
+        // The `forEach` method expects a `Consumer` - a block of code that "consumes"
+        // an item.
+        System.out.println("--- Displaying all products: ---");
+        // The lambda `p -> System.out.println(p)` says: "for each product `p`, execute
+        // this action."
+        products.forEach(p -> System.out.println(p));
 
-        // The "New Way": Using a Lambda Expression
-        // The lambda provides the implementation for the `operate` method.
-        // `(a, b)` are the parameters. `->` separates parameters from the body.
-        // `a + b` is the expression whose result is returned.
-        MathOperation addition_new = (a, b) -> a + b;
-        System.out.println("Result (New Way): " + addition_new.operate(10, 5));
+        // --- 2. Method References (::) - A Cleaner Shorthand ---
+        // If your lambda just calls one existing method, you can use a cleaner method
+        // reference.
+        // `System.out::println` is a direct reference to the `println` method.
+        System.out.println("\n--- Displaying again with a Method Reference: ---");
+        products.forEach(System.out::println);
 
-        // For more complex, multi-line lambdas, use curly braces and a `return`
-        // statement.
-        MathOperation subtraction = (a, b) -> {
-            System.out.println("Subtracting " + b + " from " + a);
-            return a - b;
-        };
-        System.out.println("Result (Complex Lambda): " + subtraction.operate(10, 5));
+        // --- 3. Filtering a List (`removeIf`) ---
+        // The `removeIf` method expects a `Predicate` - a function that returns true or
+        // false.
+        // This lambda removes any product from the list where the condition (price <
+        // 100) is true.
+        System.out.println("\n--- Removing products cheaper than $100: ---");
+        products.removeIf(p -> p.price() < 100.00);
+        products.forEach(System.out::println);
 
-        // --- 3. Using Common Built-in Functional Interfaces ---
-        System.out.println("\n--- Common Functional Interfaces ---");
-        List<String> names = new ArrayList<>(List.of("Alice", "Bob", "Charlie", "Anna", "Alex"));
+        // --- 4. Transforming Data (`Function`) ---
+        // A `Function` transforms an input of one type to an output of another (e.g., T
+        // -> R).
+        // It's the core of mapping operations, which we'll see in the next lesson on
+        // Streams.
+        // Let's transform our list of `Product` objects into a list of `String`
+        // descriptions.
+        System.out.println("\n--- Transforming products into a list of descriptions: ---");
 
-        // a) `Predicate<T>` - Represents a boolean-returning function. (T -> boolean)
-        // Used for filtering data. Let's find all names starting with 'A'.
-        Predicate<String> startsWithA = (name) -> name.startsWith("A");
-        // `removeIf` is a method on List that accepts a Predicate.
-        // It removes all elements that match the predicate.
-        List<String> namesCopy = new ArrayList<>(names);
-        namesCopy.removeIf(startsWithA);
-        System.out.println("Names after removing those starting with 'A': " + namesCopy);
+        // This function takes a Product `p` and returns a formatted String.
+        Function<Product, String> toDescription = p -> p.name() + " costs $" + p.price();
 
-        // b) `Function<T, R>` - Represents a function that transforms a T into an R. (T
-        // -> R)
-        // Used for mapping data. Let's get the length of each name.
-        Function<String, Integer> getNameLength = (name) -> name.length();
-        int aliceLength = getNameLength.apply("Alice");
-        System.out.println("\nLength of 'Alice' is: " + aliceLength);
+        List<String> descriptions = mapToList(products, toDescription);
+        descriptions.forEach(System.out::println);
+    }
 
-        // c) `Consumer<T>` - Represents an operation to be performed on an argument. (T
-        // -> void)
-        // Used for performing an action on each element.
-        Consumer<String> printName = (name) -> System.out.println("Hello, " + name);
-        System.out.println("\nGreeting all names:");
-        // `forEach` is a method that accepts a Consumer.
-        names.forEach(printName);
-
-        // --- 4. Method References (`::`) ---
-        // A method reference is a shorthand syntax for a lambda expression that only
-        // calls
-        // a single existing method. They make code even more readable. [13, 14]
-        System.out.println("\n--- Method References Demo ---");
-
-        // Instead of: `name -> System.out.println(name)`
-        // We can use: `System.out::println`
-        // This is a reference to the `println` method of the `System.out` object.
-        System.out.println("Printing names with a method reference:");
-        names.forEach(System.out::println);
-
-        // This powerful paradigm of chaining operations on collections using lambdas
-        // and
-        // method references is the foundation of the Streams API, which we explore
-        // next.
+    /**
+     * A helper method to demonstrate a Function. It takes a list and a "mapper"
+     * function,
+     * applies the function to every item, and returns a new list of the transformed
+     * items.
+     */
+    public static <T, R> List<R> mapToList(List<T> source, Function<T, R> mapper) {
+        List<R> results = new ArrayList<>();
+        for (T item : source) {
+            // Here we apply the provided lambda function to each item.
+            results.add(mapper.apply(item));
+        }
+        return results;
     }
 }

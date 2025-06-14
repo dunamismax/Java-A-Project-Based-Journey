@@ -1,32 +1,20 @@
 /**
- * @file 14_CollectionsFramework.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson introduces the Java Collections Framework, a powerful library for
+ * storing and managing groups of objects dynamically.
  *
- * @brief Moves beyond arrays to use Java's powerful, dynamic collection library.
+ * Unlike arrays, which have a fixed size, Collections can grow and shrink as needed.
+ * We will focus on two of the most common and useful collections:
  *
- * ---
+ * - A `List`: An ordered collection of items (allows duplicates).
+ *   Think of it as a dynamic, flexible array.
+ * - A `Map`: A collection of key-value pairs (keys must be unique).
+ *   Perfect for lookups, like a dictionary or a phone book.
  *
- * ## Beyond Arrays: The Java Collections Framework
+ * We will also learn the best practice of "programming to the interface."
  *
- * Arrays are useful, but they have a major limitation: they are fixed in size. You can't
- * easily add or remove elements. The **Java Collections Framework (JCF)** is the solution.
- * It's a rich library of classes and interfaces that provide powerful and optimized ways to
- * store and manipulate groups of objects. [1, 2]
- *
- * ### Key Advantages over Arrays:
- * - **Dynamic Size:** Collections can grow or shrink as needed.
- * - **High Performance:** Provides highly optimized implementations of common data structures
- *   (linked lists, hash maps, trees, etc.).
- * - **Reduces Effort:** Comes with built-in algorithms for sorting, searching, reversing, etc.
- *
- * ### What you will learn:
- * - **Generics (`<>`):** The mechanism for creating type-safe collections. [5]
- * - The three core collection interfaces: `List`, `Set`, and `Map`. [14, 19]
- * - **`ArrayList`**: The most common implementation of a dynamic, ordered list.
- * - **`HashMap`**: The most common implementation for storing key-value pairs.
- * - **Best Practice**: The importance of "programming to the interface". [4]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac CollectionsFramework.java
+ * 2. Run:     java CollectionsFramework
  */
 
 // Import the specific interfaces and classes we will use.
@@ -39,91 +27,68 @@ public class CollectionsFramework {
 
     public static void main(String[] args) {
 
-        // --- Introducing Generics (`<>`) ---
-        // The angle brackets `<>` are used to specify the type of objects the
-        // collection will hold.
-        // This is called using "Generics". It provides compile-time type safety,
-        // meaning the
-        // compiler will give you an error if you try to add an incompatible type. [5,
-        // 9]
-        // This prevents nasty `ClassCastException` errors at runtime.
-
         // --- 1. The `List` Interface and `ArrayList` ---
-        // A List is an ordered collection of elements that allows duplicates. [6]
-        // You can access elements by their integer index, just like with arrays.
-        // `ArrayList` is the most common implementation of the `List` interface.
+        // A List is an ordered collection. `ArrayList` is the most common
+        // implementation.
+        // The `<String>` part uses Generics to ensure this list can only hold Strings,
+        // which prevents errors at compile time.
 
-        // **Best Practice: Program to the Interface**
-        // Notice we declare the variable as `List`, but create an `ArrayList`. [4]
-        // This makes our code more flexible. We could easily swap `ArrayList` for
-        // another
-        // `List` implementation (like `LinkedList`) without changing the rest of the
-        // code. [4, 7]
-        System.out.println("--- The List: ArrayList ---");
-        List<String> fruits = new ArrayList<>();
+        // Best Practice: Declare with the interface type (`List`), create with the
+        // class type (`ArrayList`).
+        // This makes your code more flexible if you ever need to change the
+        // implementation.
+        System.out.println("--- Using a List (ArrayList) for a To-Do List ---");
+        List<String> todoList = new ArrayList<>();
 
-        // Add elements to the list
-        fruits.add("Apple");
-        fruits.add("Banana");
-        fruits.add("Cherry");
-        fruits.add("Banana"); // Duplicates are allowed
+        // Add items to the list
+        todoList.add("Buy groceries");
+        todoList.add("Pay bills");
+        todoList.add("Walk the dog");
 
-        System.out.println("Fruits in the list: " + fruits);
-        System.out.println("Number of fruits: " + fruits.size());
+        System.out.println("Current tasks: " + todoList);
+        System.out.println("Number of tasks: " + todoList.size());
 
-        // Get an element by its index
-        String firstFruit = fruits.get(0);
-        System.out.println("The first fruit is: " + firstFruit);
+        // Access an item by its index
+        System.out.println("First task: " + todoList.get(0));
 
-        // Check if an element exists
-        System.out.println("Does the list contain 'Cherry'? " + fruits.contains("Cherry"));
+        // Remove an item
+        todoList.remove("Pay bills");
+        System.out.println("Tasks after completing one: " + todoList);
 
-        // Iterate through the list using a for-each loop
-        System.out.println("\nIterating through fruits:");
-        for (String fruit : fruits) {
-            System.out.println("- " + fruit);
+        System.out.println("\nIterating over the remaining tasks:");
+        for (String task : todoList) {
+            System.out.println("- " + task);
         }
 
-        // Remove an element
-        fruits.remove("Banana"); // Removes the first occurrence
-        System.out.println("\nList after removing one 'Banana': " + fruits);
-
         // --- 2. The `Map` Interface and `HashMap` ---
-        // A Map stores data as key-value pairs. Each key must be unique. [10, 15]
-        // It's incredibly fast for looking up a value if you know its key.
-        // `HashMap` is the most common implementation of `Map`. It does not guarantee
-        // order. [10]
+        // A Map stores key-value pairs. `HashMap` is the most common implementation.
+        // It provides extremely fast lookups using the key. The order of items is not
+        // guaranteed.
+        System.out.println("\n\n--- Using a Map (HashMap) for Player Scores ---");
+        // This map will store player names (String) and their scores (Integer).
+        // Note: Collections must use Objects (like Integer), not primitives (like int).
+        Map<String, Integer> playerScores = new HashMap<>();
 
-        System.out.println("\n\n--- The Map: HashMap ---");
-        // This map will store student names (String keys) and their exam scores
-        // (Integer values).
-        // Note: Collections can only store objects, not primitives. Java automatically
-        // converts
-        // the `int` to an `Integer` object. This is called "autoboxing".
-        Map<String, Integer> studentScores = new HashMap<>();
+        // Add key-value pairs using .put()
+        playerScores.put("Alice", 95);
+        playerScores.put("Bob", 82);
+        playerScores.put("Charlie", 99);
+        playerScores.put("Alice", 100); // Using an existing key will UPDATE the value.
 
-        // Add key-value pairs using put()
-        studentScores.put("Alice", 95);
-        studentScores.put("Bob", 82);
-        studentScores.put("Charlie", 99);
-        studentScores.put("Alice", 98); // Putting with an existing key will UPDATE the value.
-
-        System.out.println("Student scores: " + studentScores);
+        System.out.println("Player scores: " + playerScores);
 
         // Get a value by its key
-        int aliceScore = studentScores.get("Alice");
-        System.out.println("Alice's score is: " + aliceScore);
+        Integer aliceScore = playerScores.get("Alice");
+        System.out.println("Alice's current score is: " + aliceScore);
 
-        // Check if a key exists
-        System.out.println("Does the map contain a score for 'David'? " + studentScores.containsKey("David"));
+        // Check if a player exists
+        System.out.println("Does 'David' have a score? " + playerScores.containsKey("David"));
 
-        // The most efficient way to iterate over a map is using its `entrySet`.
-        // An entry is a single key-value pair.
-        System.out.println("\nIterating through student scores:");
-        for (Map.Entry<String, Integer> entry : studentScores.entrySet()) {
-            String studentName = entry.getKey();
-            Integer score = entry.getValue();
-            System.out.println(studentName + " scored " + score);
+        // The best way to iterate over a Map is using its "entry set".
+        // An entry is a single key-value pair object.
+        System.out.println("\nIterating over all scores:");
+        for (Map.Entry<String, Integer> entry : playerScores.entrySet()) {
+            System.out.println("Player: " + entry.getKey() + " -> Score: " + entry.getValue());
         }
     }
 }

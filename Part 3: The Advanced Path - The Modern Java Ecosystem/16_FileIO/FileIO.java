@@ -1,30 +1,23 @@
 
 /**
- * @file 16_FileIO.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson demonstrates modern File I/O (Input/Output) in Java.
+ * File I/O allows your program to save data permanently by writing to files
+ * and to process that data by reading from files.
  *
- * @brief Persists data by reading from and writing to files using the modern Java API.
+ * We will use the modern Java NIO.2 (New I/O) library, which is the
+ * recommended approach for file operations. Key components are:
  *
- * ---
+ * - `Path`: Represents a location in the file system.
+ * - `Paths`: A helper class to create `Path` objects.
+ * - `Files`: A helper class with static methods for reading, writing, and
+ *   manipulating files (e.g., `write()`, `readAllLines()`).
  *
- * ## Making Data Persistent: Modern File I/O
+ * All file operations can cause an `IOException`, which is a checked exception
+ * that we must handle with a `try-catch` block.
  *
- * So far, all the data our programs have worked with disappears the moment the program ends.
- * To save data permanently, we need to write it to a **file**. File I/O (Input/Output) is
- * the process of reading from and writing to files on a storage device.
- *
- * Since Java 7, the preferred way to handle file operations is with the **New I/O (NIO.2)**
- * API, located in the `java.nio.file` package. It offers a more powerful and intuitive
- * approach compared to the older `java.io.File` class. [1, 2]
- *
- * ### What you will learn:
- * - The `Path` interface: A modern representation of a file or directory path. [4]
- * - The `Paths` and `Files` utility classes for creating paths and performing file operations. [4]
- * - The `try-with-resources` statement: The modern, correct way to ensure resources like files are automatically closed. [6, 10]
- * - How to easily read and write text and lines to and from a file.
- * - How to handle the checked `IOException`.
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac FileIO.java
+ * 2. Run:     java FileIO
  */
 
 import java.io.IOException;
@@ -39,88 +32,53 @@ public class FileIO {
 
     public static void main(String[] args) {
 
-        // --- 1. The `Path` Interface ---
-        // A `Path` object represents a path in the file system. It is OS-agnostic.
-        // We use the `Paths.get()` factory method to create a Path object.
-        // This will create a file in the same directory where the program is run.
-        Path filePath = Paths.get("myFirstFile.txt");
-        System.out.println("Working with file: " + filePath.toAbsolutePath());
+        // 1. Define the file path using the modern `Path` interface.
+        Path diaryFile = Paths.get("my_diary.txt");
+        System.out.println("Working with file: " + diaryFile.toAbsolutePath());
 
-        // --- 2. Writing a String to a File ---
-        // The `Files` class provides convenient static methods for I/O.
-        System.out.println("\n--- Writing to a File ---");
         try {
-            String content = "Hello, File I/O!\nWelcome to the world of persistent data.";
-            // `Files.writeString()` is a simple way to write an entire string.
-            // It handles opening, writing, and closing the file automatically.
-            Files.writeString(filePath, content);
-            System.out.println("Successfully wrote content to " + filePath);
-        } catch (IOException e) {
-            // `IOException` is a checked exception. We must handle it.
-            // It can occur if we don't have permission to write the file, etc.
-            System.err.println("An error occurred while writing to the file: " + e.getMessage());
-        }
+            // --- 2. Writing a List of Lines to a File ---
+            System.out.println("\nWriting today's diary entries...");
+            List<String> entries = Arrays.asList(
+                    "Dear Diary,",
+                    "Today, I learned about modern Java File I/O.",
+                    "It's much simpler than I thought!");
+            // `Files.write()` is a convenient one-liner that handles opening, writing,
+            // and closing the file. By default, it will overwrite the file if it exists.
+            Files.write(diaryFile, entries);
+            System.out.println("Entries saved successfully.");
 
-        // --- 3. Reading the Entire File into a String ---
-        System.out.println("\n--- Reading from a File ---");
-        try {
-            // `Files.readString()` reads all content from a file into a single string.
-            String fileContent = Files.readString(filePath);
-            System.out.println("Content read from file:\n---\n" + fileContent + "\n---");
-        } catch (IOException e) {
-            System.err.println("An error occurred while reading the file: " + e.getMessage());
-        }
+            // --- 3. Appending a New Line to an Existing File ---
+            System.out.println("\nAdding a late-night thought...");
+            // To add to a file instead of overwriting, we use an "Open Option".
+            // `StandardOpenOption.APPEND` tells Java to add to the end of the file.
+            String newThought = "I should practice this more tomorrow.\n";
+            Files.writeString(diaryFile, newThought, StandardOpenOption.APPEND);
+            System.out.println("Thought appended.");
 
-        // --- 4. Writing a List of Lines and Appending ---
-        System.out.println("\n--- Writing multiple lines ---");
-        try {
-            List<String> shoppingList = Arrays.asList("Milk", "Bread", "Cheese");
-            Path listPath = Paths.get("shoppingList.txt");
-
-            // `Files.write()` takes a Path and an Iterable (like a List) and writes each
-            // item as a line.
-            Files.write(listPath, shoppingList);
-            System.out.println("Successfully wrote shopping list to " + listPath);
-
-            // What if we want to add to the file instead of overwriting it?
-            // We use `StandardOpenOption.APPEND`.
-            System.out.println("Appending 'Eggs' to the list...");
-            Files.writeString(listPath, "Eggs\n", StandardOpenOption.APPEND);
-
-        } catch (IOException e) {
-            System.err.println("An error occurred: " + e.getMessage());
-        }
-
-        // --- 5. Reading a File Line by Line with `try-with-resources` ---
-        System.out.println("\n--- Reading the shopping list line by line ---");
-        Path listPath = Paths.get("shoppingList.txt");
-
-        // The `try-with-resources` statement is the BEST way to handle resources.
-        // Any resource declared in the `()` (like a file stream) that implements
-        // the `AutoCloseable` interface will be CLOSED AUTOMATICALLY at the end
-        // of the block, whether it completes normally or with an error. [6, 10]
-        // This prevents resource leaks and is much cleaner than a `finally` block.
-        try {
-            // `Files.readAllLines()` reads all lines into a List<String>.
-            List<String> lines = Files.readAllLines(listPath);
-            System.out.println("Items in shopping list:");
-            for (String item : lines) {
-                System.out.println("- " + item);
+            // --- 4. Reading All Lines from the File ---
+            System.out.println("\n--- Reading My Diary ---");
+            // `Files.readAllLines()` reads the entire file into a List of strings.
+            // This is perfect for reading and processing text-based files.
+            List<String> allLines = Files.readAllLines(diaryFile);
+            for (String line : allLines) {
+                System.out.println(line);
             }
-        } catch (IOException e) {
-            System.err.println("An error occurred reading the list: " + e.getMessage());
-        }
+            System.out.println("--- End of Diary ---");
 
-        // --- 6. Cleaning Up ---
-        // It's good practice to clean up created files.
-        System.out.println("\n--- Cleaning up created files ---");
-        try {
-            Files.deleteIfExists(filePath);
-            System.out.println("Deleted: " + filePath.getFileName());
-            Files.deleteIfExists(listPath);
-            System.out.println("Deleted: " + listPath.getFileName());
         } catch (IOException e) {
-            System.err.println("Error during cleanup: " + e.getMessage());
+            // This block catches any I/O errors, such as not having permission to write.
+            System.err.println("A file error occurred: " + e.getMessage());
+        } finally {
+            // --- 5. Cleaning Up the File ---
+            // A `finally` block is a good place to put cleanup code.
+            System.out.println("\nCleaning up the created diary file...");
+            try {
+                Files.deleteIfExists(diaryFile);
+                System.out.println("File deleted.");
+            } catch (IOException e) {
+                System.err.println("Error during cleanup: " + e.getMessage());
+            }
         }
     }
 }

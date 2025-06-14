@@ -1,121 +1,87 @@
 
 /**
- * @file 15_ExceptionHandling.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson demonstrates Exception Handling, Java's mechanism for managing errors
+ * gracefully. An "exception" is an event that disrupts the normal flow of a program.
  *
- * @brief Introduces how to write resilient code that can handle errors and unexpected events gracefully.
+ * Without proper handling, exceptions will crash your application. By using `try`,
+ * `catch`, and `finally`, you can create resilient code that anticipates and
+ * manages problems.
  *
- * ---
+ * We will learn to:
+ * - Use a `try-catch` block to handle potential errors.
+ * - Use the `finally` block to execute essential cleanup code.
+ * - Understand the difference between CHECKED and UNCHECKED exceptions.
+ * - Use the `throws` keyword to delegate error handling.
  *
- * ## Writing Bulletproof Code: Exception Handling
- *
- * An **exception** is an unexpected or erroneous event that occurs during the execution of a
- * program, disrupting its normal flow. Common examples include trying to divide by zero,
- * accessing a file that doesn't exist, or using an object that is `null`.
- *
- * Without proper exception handling, these events will crash your program. Java provides a
- * robust mechanism using `try`, `catch`, `finally`, and `throws` keywords to manage these
- * situations, allowing you to create stable and user-friendly applications. [2, 11]
- *
- * ### What you will learn:
- * - The purpose of the `try-catch` block to handle runtime errors. [3, 11]
- * - The `finally` block for executing crucial cleanup code, regardless of an error. [4]
- * - The difference between **Checked** and **Unchecked** exceptions, a core Java concept. [1, 9, 14]
- * - The `throws` keyword to declare that a method might pass an exception to its caller. [6]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac ExceptionHandling.java
+ * 2. Run:     java ExceptionHandling
  */
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ExceptionHandling {
 
     public static void main(String[] args) {
 
-        // --- 1. The Basic `try-catch` Block ---
-        // The `try` block contains "risky" code that might throw an exception. [3]
-        // If an exception occurs, the `try` block is immediately exited, and Java looks
-        // for a matching `catch` block to handle it. [3]
-        System.out.println("--- Demonstrating try-catch ---");
+        // --- 1. Handling an UNCHECKED Exception with try-catch-finally ---
+        // Unchecked exceptions are typically programming errors (e.g., dividing by
+        // zero,
+        // using a null object). The compiler does not force you to handle them.
+
+        System.out.println("--- Dividing two numbers ---");
         try {
-            System.out.println("Attempting to divide by zero...");
-            int result = 10 / 0; // This will throw an ArithmeticException
-            System.out.println("This line will never be reached.");
+            // The `try` block contains the "risky" code.
+            int numerator = 10;
+            int denominator = 0;
+            int result = numerator / denominator; // This will throw an ArithmeticException.
+            System.out.println("Result: " + result); // This line will never be reached.
+
         } catch (ArithmeticException e) {
-            // This block only executes if an ArithmeticException is caught.
-            System.out.println("Caught an error!");
-            System.out.println("Error message: " + e.getMessage()); // e.getMessage() gives a description of the error.
-        }
-        System.out.println("Program continues executing after the catch block.\n");
+            // The `catch` block executes ONLY if the specific exception is thrown.
+            System.out.println("Error: Cannot divide by zero. " + e.getMessage());
 
-        // --- 2. The `finally` Block ---
-        // The `finally` block is optional, but it will **always** execute, whether an
-        // exception occurred or not. It's essential for cleanup tasks like closing
-        // files or database connections. [4, 7]
-        System.out.println("--- Demonstrating finally ---");
-        Scanner scanner = new Scanner(System.in);
-        try {
-            System.out.print("Enter a number: ");
-            int number = scanner.nextInt();
-            System.out.println("You entered: " + number);
-        } catch (InputMismatchException e) {
-            System.out.println("Error: That was not a valid number.");
         } finally {
-            // This code runs no matter what happens in the try-catch block.
-            System.out.println("The finally block is executing, closing resources.");
-            scanner.close(); // Good practice to close the scanner.
+            // The `finally` block ALWAYS runs, whether an exception occurred or not.
+            // It's perfect for cleanup code, like closing files or network connections.
+            System.out.println("This 'finally' block always executes.");
         }
 
-        // --- 3. Checked vs. Unchecked Exceptions ---
+        System.out.println("Program continues after the first example.\n");
 
-        // **Unchecked Exceptions** (subclasses of `RuntimeException`):
-        // Caused by programming errors (e.g., `NullPointerException`,
-        // `ArrayIndexOutOfBoundsException`).
-        // The compiler does NOT force you to handle them, though you can. [1, 9]
+        // --- 2. Handling a CHECKED Exception ---
+        // Checked exceptions are for external issues a program should anticipate
+        // (e.g., a file not being found). The compiler FORCES you to handle them.
 
-        // **Checked Exceptions** (subclasses of `Exception` but not
-        // `RuntimeException`):
-        // External issues a program can reasonably anticipate (e.g., file not found,
-        // network error).
-        // The compiler FORCES you to handle them using `try-catch` or `throws`. [1, 9]
-
-        // --- 4. Handling a Checked Exception ---
-        // The `readFirstLineFromFile` method is declared with `throws
-        // FileNotFoundException`.
-        // This is a checked exception, so the compiler requires us to handle it here.
-        System.out.println("\n--- Handling a Checked Exception ---");
+        // The `readFile` method is declared with `throws FileNotFoundException`.
+        // This means we, the caller, are responsible for handling that potential error.
+        System.out.println("--- Attempting to read from a file ---");
         try {
-            String firstLine = readFirstLineFromFile("non_existent_file.txt");
-            System.out.println("First line: " + firstLine);
+            readFile("non_existent_file.txt");
         } catch (FileNotFoundException e) {
-            System.out.println("ERROR: The file could not be found!");
-            // e.printStackTrace(); // A useful method for debugging to see the full error
-            // stack.
+            System.out.println("ERROR: The file could not be found. Please check the filename.");
+            // For debugging, `e.printStackTrace();` is very useful.
         }
+
+        System.out.println("Program execution finished.");
     }
 
     /**
-     * @brief Reads the first line from a file.
-     * @param filePath The path to the file.
-     * @return The first line of the file.
-     * @throws FileNotFoundException If the file does not exist at the specified
-     *                               path.
+     * Attempts to read from a file.
+     * This method uses the `throws` keyword to declare that it might throw a
+     * `FileNotFoundException`. It delegates the responsibility of handling this
+     * checked exception to whatever code calls the method.
      *
-     *                               This method uses the `throws` keyword to
-     *                               delegate the responsibility of handling
-     *                               the `FileNotFoundException` to whatever code
-     *                               calls this method. [6]
+     * @param fileName The name of the file to read.
+     * @throws FileNotFoundException if the file cannot be found.
      */
-    public static String readFirstLineFromFile(String filePath) throws FileNotFoundException {
-        File file = new File(filePath);
-        // The Scanner constructor here can throw a checked exception, so we must
-        // either handle it here or declare it with `throws`. We chose the latter.
-        Scanner fileScanner = new Scanner(file);
-        String line = fileScanner.nextLine();
-        fileScanner.close();
-        return line;
+    public static void readFile(String fileName) throws FileNotFoundException {
+        System.out.println("Opening file: " + fileName);
+        File file = new File(fileName);
+        Scanner scanner = new Scanner(file); // This line can throw the exception.
+        System.out.println("File found and opened successfully!"); // Only prints if successful.
+        scanner.close();
     }
 }

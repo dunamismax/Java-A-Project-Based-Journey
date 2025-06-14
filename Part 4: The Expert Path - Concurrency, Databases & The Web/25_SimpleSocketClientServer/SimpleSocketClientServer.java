@@ -1,60 +1,35 @@
 
 /**
- * @file 25_SimpleSocketClientServer.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson is a hands-on project to build your first networked application:
+ * a basic command-line chat server and client.
  *
- * @brief Your Gateway to the Internet: Build a client-server chat application using Sockets.
+ * This project uses **Sockets**, the fundamental building block for all network
+ * communication, allowing two programs to talk to each other over a network.
  *
- * ---
- *
- * ## Network Programming with Sockets
- *
- * Sockets are the fundamental building blocks of network communication. A **socket** is one
- * endpoint of a two-way communication link between two programs running on the network. They allow
- * applications to send and receive data as a stream of bytes.
- *
- * Java's `java.net` package provides a simple and powerful API for socket programming. This project
- * demonstrates how to build a basic "Echo Server" and a client that talks to it. The client will
- * send a message, and the server will "echo" it back.
- *
- * ### Core Components:
- * 1.  **`ServerSocket`**: A special socket that runs on the server and listens for incoming
- *     connection requests from clients on a specific port. [2]
- * 2.  **`Socket`**: An object representing the connection endpoint. Both the client and the server
- *     use a `Socket` object to communicate once a connection is established. [1]
- * 3.  **Port**: A number (0-65535) that identifies a specific application or process on a machine.
- *     Think of the IP address as the building's street address, and the port as the apartment number. [4]
- * 4.  **Streams**: We use `InputStream` and `OutputStream` (wrapped in more convenient Readers/Writers)
- *     to send and receive data through the socket.
+ * We will create two separate programs in this file:
+ * 1.  `ChatServer`: Listens for a single client connection.
+ * 2.  `ChatClient`: Connects to the server to send and receive messages.
  *
  * ### How to Run This Project:
- * This file contains two independent programs: a server and a client. You must run them in separate terminals.
  *
  * 1.  **Compile the file:**
  *     ```sh
- *     javac 25_SimpleSocketClientServer.java
+ *     javac SimpleSocketClientServer.java
  *     ```
  *
  * 2.  **Open Terminal 1 and start the Server:**
- *     The server will start and wait for a client to connect.
  *     ```sh
- *     java EchoServer
+ *     java ChatServer
  *     ```
  *
  * 3.  **Open Terminal 2 and start the Client:**
  *     ```sh
- *     java EchoClient
+ *     java ChatClient
  *     ```
  *
- * 4.  **Interact:** Type messages into the client terminal and press Enter. You will see the server
- *     receive the message and echo it back to the client. Type "exit" to close the connection.
- *
- * ### What you will learn:
- * - How to create a server that listens for client connections.
- * - How to create a client that connects to a server.
- * - How to send and receive text data over a network socket.
- * - The importance of `try-with-resources` for automatically closing network connections.
+ * 4.  Type messages into the client terminal and press Enter. The server will
+ *     receive and display them, and then send a response back.
+ *     Type "exit" in the client to end the session.
  *
  */
 
@@ -64,96 +39,100 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
-// This class is just a placeholder to contain the instructions.
-// The actual runnable classes are EchoServer and EchoClient below.
+// This class is a placeholder for instructions. The real work is in the classes below.
 public class SimpleSocketClientServer {
-    public static void main(String[] args) {
-        System.out.println("This file contains two programs: EchoServer and EchoClient.");
-        System.out.println("Please follow the instructions in the file's header comments to run them.");
-    }
 }
 
 /**
- * The Server program. It listens for one client connection and echoes messages
- * back.
+ * The Server program. It waits for a single client to connect and then chats
+ * with it.
  */
-class EchoServer {
+class ChatServer {
     public static void main(String[] args) {
-        final int PORT = 6000;
-        System.out.println("Echo Server started...");
+        final int PORT = 12345;
+        System.out.println("[SERVER] Starting up...");
 
-        // `try-with-resources` ensures the ServerSocket is automatically closed.
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Waiting for a client to connect on port " + PORT + "...");
+        // Use `try-with-resources` to auto-close the sockets, which is crucial.
+        try (
+                // 1. Create a ServerSocket to listen on a specific port.
+                ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("[SERVER] Waiting for a client to connect on port " + PORT);
 
-            // `serverSocket.accept()` is a blocking call. It waits until a client connects.
-            // It returns a Socket object representing the connection to that client.
+            // 2. `accept()` is a blocking method. It waits until a client connects.
+            // It then returns a `Socket` object representing the connection to that client.
             Socket clientSocket = serverSocket.accept();
-            System.out.println("Client connected: " + clientSocket.getInetAddress().getHostAddress());
+            System.out.println("[SERVER] Client connected: " + clientSocket.getRemoteSocketAddress());
 
-            // Use another `try-with-resources` for the client-specific resources.
             try (
-                    // A PrintWriter to send text data TO the client
+                    // 3. Set up streams to communicate with the connected client.
                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                    // A BufferedReader to read text data FROM the client
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
-                String inputLine;
-                // Read from the client as long as the connection is open and there's data.
-                while ((inputLine = in.readLine()) != null) {
-                    System.out.println("Received from client: " + inputLine);
+                out.println("[SERVER] Welcome! You are connected. I will echo your messages.");
+
+                String clientMessage;
+                // 4. Read messages from the client until the connection is closed.
+                while ((clientMessage = in.readLine()) != null) {
+                    System.out.println("[SERVER] Received from client: " + clientMessage);
+                    if ("exit".equalsIgnoreCase(clientMessage)) {
+                        break;
+                    }
                     // Echo the message back to the client.
-                    out.println("Server echoes: " + inputLine);
+                    out.println("Echo from server: " + clientMessage);
                 }
             }
 
         } catch (IOException e) {
-            System.err.println("Server exception: " + e.getMessage());
+            System.err.println("[SERVER] Error: " + e.getMessage());
         }
 
-        System.out.println("Echo Server shutting down.");
+        System.out.println("[SERVER] Shutting down.");
     }
 }
 
 /**
- * The Client program. It connects to the server and sends user-typed messages.
+ * The Client program. It connects to the server and sends user input.
  */
-class EchoClient {
+class ChatClient {
     public static void main(String[] args) {
-        final String HOST = "127.0.0.1"; // "localhost" - the same machine
-        final int PORT = 6000;
-        System.out.println("Echo Client started...");
+        final String HOST = "127.0.0.1"; // "localhost", meaning the same machine.
+        final int PORT = 12345;
+        System.out.println("[CLIENT] Starting up...");
 
         try (
-                // Create a socket to connect to the server at the specified host and port.
+                // 1. Create a socket to connect to the server.
                 Socket socket = new Socket(HOST, PORT);
-                // A PrintWriter to send text TO the server.
+                // 2. Set up streams for sending data TO the server and reading FROM it.
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                // A BufferedReader to read text FROM the server.
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                // A BufferedReader to read text from the user's console input.
-                BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in))) {
-            System.out.println("Connected to server. Type a message and press Enter to send.");
-            System.out.println("Type 'exit' to quit.");
+                // 3. Set up a reader for console input from the user.
+                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+            System.out.println("[CLIENT] Connected to server at " + HOST + ":" + PORT);
 
+            // Read the initial welcome message from the server.
+            System.out.println("Server says: " + in.readLine());
+
+            System.out.println("Type a message and press Enter. Type 'exit' to quit.");
             String userInput;
-            while ((userInput = stdIn.readLine()) != null) {
-                // Send the user's message to the server.
-                out.println(userInput);
+            // 4. Loop to read user input and send it to the server.
+            while ((userInput = consoleReader.readLine()) != null) {
+                out.println(userInput); // Send message to server.
 
                 if ("exit".equalsIgnoreCase(userInput)) {
                     break;
                 }
 
-                // Wait for and print the server's echoed response.
+                // Wait for and print the server's response.
                 String serverResponse = in.readLine();
-                System.out.println("Response from server: " + serverResponse);
+                System.out.println("Server echoes: " + serverResponse);
             }
-
+        } catch (UnknownHostException e) {
+            System.err.println("[CLIENT] Error: Server not found at " + HOST);
         } catch (IOException e) {
-            System.err.println("Client exception: " + e.getMessage());
+            System.err.println("[CLIENT] I/O Error: " + e.getMessage());
         }
 
-        System.out.println("Echo Client shutting down.");
+        System.out.println("[CLIENT] Shutting down.");
     }
 }

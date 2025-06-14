@@ -1,106 +1,77 @@
 /**
- * @file 5_Loops.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson explains loops, which are used to execute a block of code
+ * repeatedly.
+ * Loops are essential for automating tasks like processing every item in a
+ * list.
+ * We will cover the `for`, `while`, and the modern `for-each` loop.
  *
- * @brief Teaches programs to perform repetitive tasks using loops.
- *
- *        ---
- *
- *        ## Automating Repetitive Tasks with Loops
- *
- *        Loops are a fundamental control structure in programming that allow
- *        you to execute
- *        a block of code repeatedly. Without loops, you would have to write the
- *        same code
- *        over and over again. They are essential for iterating over collections
- *        of data,
- *        waiting for user input, or running a simulation.
- *
- *        Java provides several types of loops, each suited for different
- *        scenarios. Choosing
- *        the right loop makes your code cleaner and more efficient. [11]
- *
- *        ### What you will learn:
- *        - The `for` loop: Ideal when you know the number of iterations in
- *        advance. [5, 17]
- *        - The `while` loop: Used when a loop should continue as long as a
- *        condition is true. [11, 16]
- *        - The `do-while` loop: Similar to `while`, but guarantees the loop
- *        body runs at least once. [2]
- *        - The enhanced `for-each` loop: A modern, clean way to iterate over
- *        every item in an array or collection. [1]
- *        - Loop control statements: `break` to exit a loop and `continue` to
- *        skip an iteration. [4]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac Loops.java
+ * 2. Run: java Loops
  */
 public class Loops {
 
     public static void main(String[] args) {
 
-        // An array of strings we will use for some loop examples.
-        String[] planets = { "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune" };
-
         // --- 1. The `for` Loop ---
-        // Best for when you know exactly how many times you want to loop.
-        // It consists of three parts in the parentheses:
-        // 1. Initialization: `int i = 0` (runs once at the beginning)
-        // 2. Condition: `i < 5` (checked before each iteration)
-        // 3. Increment: `i++` (runs after each iteration)
-        System.out.println("--- The `for` loop (Countdown) ---");
-        for (int i = 5; i > 0; i--) {
-            System.out.println("T-minus " + i);
+        // Ideal when you know exactly how many times to repeat.
+        // Structure: (initializer; condition; updater)
+        System.out.println("--- `for` loop: Countdown ---");
+        for (int i = 3; i > 0; i--) {
+            System.out.println(i);
         }
         System.out.println("Liftoff!");
 
         // --- 2. The `while` Loop ---
-        // A `while` loop executes as long as its condition remains true. It's an
-        // "entry-controlled" loop because the condition is checked *before* the loop
-        // body runs. [16, 17]
-        // Useful when the number of iterations is not known beforehand. [11]
-        System.out.println("\n--- The `while` loop (Finding a planet) ---");
-        int currentIndex = 0;
-        while (currentIndex < planets.length) {
-            String currentPlanet = planets[currentIndex];
-            System.out.println("Checking planet: " + currentPlanet);
-            if (currentPlanet.equals("Mars")) {
-                System.out.println("Found Mars! Halting the search.");
-                break; // `break` immediately terminates the innermost loop. [4, 9]
+        // Repeats as long as a condition is true. Use when the number of iterations is
+        // unknown.
+        System.out.println("\n--- `while` loop: Dice Roll ---");
+        int diceRoll = 0;
+        while (diceRoll != 6) {
+            // Math.random() gives a double between 0.0 and <1.0
+            diceRoll = (int) (Math.random() * 6) + 1;
+            System.out.println("You rolled a " + diceRoll);
+        }
+        System.out.println("You rolled a 6! You win!");
+
+        // --- 3. The Enhanced `for-each` Loop (Modern & Recommended) ---
+        // The cleanest way to iterate over every item in an array or collection.
+        // It reads as "for each planet in planets...".
+        System.out.println("\n--- `for-each` loop: Listing planets ---");
+        String[] planets = { "Mercury", "Venus", "Earth", "Mars" };
+        for (String planet : planets) {
+            System.out.println("- " + planet);
+        }
+
+        // --- Loop Control: `break` and `continue` ---
+        System.out.println("\n--- Loop Control: Finding specific planets ---");
+
+        // `break` exits a loop immediately.
+        // `continue` skips the current iteration and moves to the next.
+
+        for (String planet : planets) {
+            if (planet.equals("Earth")) {
+                System.out.println("Found Earth, our home! Stopping search.");
+                break; // Exit the loop now
             }
-            currentIndex++; // CRITICAL: Don't forget to update the loop variable to avoid an infinite loop!
-        }
 
-        // --- 3. The `do-while` Loop ---
-        // This loop is similar to `while`, but the condition is checked *after* the
-        // loop body. [2, 20]
-        // This guarantees the loop will execute at least once, which is useful for
-        // things like menus. [12, 18, 19]
-        System.out.println("\n--- The `do-while` loop ---");
-        int counter = 5;
-        do {
-            System.out.println("This will print at least once, even though the condition is false.");
-            counter++;
-        } while (counter < 5);
-
-        // --- 4. The Enhanced `for-each` Loop (Java 5+) ---
-        // The cleanest way to iterate over all elements of an array or collection. [1,
-        // 14]
-        // You don't need to manage an index variable, which reduces errors. [6, 14]
-        // Read it as: "for each String `planet` in the `planets` array..."
-        System.out.println("\n--- The enhanced `for-each` loop (Printing all planets) ---");
-        for (String planet : planets) {
-            System.out.println("Planet: " + planet);
-        }
-
-        // --- 5. Loop Control with `continue` ---
-        // The `continue` statement skips the rest of the current iteration and
-        // proceeds to the next one. [4, 8, 10]
-        System.out.println("\n--- Using `continue` to skip planets without the letter 'a' ---");
-        for (String planet : planets) {
-            if (!planet.toLowerCase().contains("a")) {
+            if (!planet.contains("r")) {
+                System.out.println("Skipping " + planet + " (no 'r' sound)...");
                 continue; // Skip to the next planet
             }
-            System.out.println(planet + " contains the letter 'a'.");
+
+            System.out.println("Analyzing " + planet + "...");
         }
+
+        // --- 4. The `do-while` Loop ---
+        // Similar to `while`, but guarantees the code block runs at least once
+        // because the condition is checked at the end.
+        System.out.println("\n--- `do-while` loop: Menu example ---");
+        int choice;
+        do {
+            System.out.println("This menu will always show at least once.");
+            choice = 0; // In a real app, you'd get user input here.
+        } while (choice != 0);
+        System.out.println("Exiting menu.");
     }
 }

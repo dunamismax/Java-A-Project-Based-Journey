@@ -1,42 +1,15 @@
 /**
- * @file 4_OperatorsAndFlowControl.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson covers operators and flow control, the fundamental tools
+ * for making decisions and performing calculations in your code.
  *
- * @brief Explores operators to perform calculations and flow control to make
- *        decisions.
+ * Operators are symbols that perform operations like addition (+) or comparison
+ * (>).
+ * Flow control statements like `if` and `switch` use these operations to direct
+ * the execution path of your program.
  *
- *        ---
- *
- *        ## Giving Your Program a Brain
- *
- *        To write useful programs, you need two things: the ability to perform
- *        operations
- *        on data (like math or comparisons) and the ability to make decisions
- *        based on
- *        the results. This is where operators and flow control statements come
- *        in. [16]
- *
- *        **Operators** are special symbols that perform specific operations on
- *        one, two, or
- *        three operands, and then return a result. For example, `+` adds two
- *        numbers. [17]
- *
- *        **Flow Control** statements (like `if` and `switch`) allow you to
- *        control the
- *        execution path of your program. They are the "decision-making" part of
- *        your code,
- *        allowing it to react differently to different situations. [3, 9]
- *
- *        ### What you will learn:
- *        - How to use arithmetic, relational, and logical operators.
- *        - The importance of "short-circuiting" with logical operators. [2, 12]
- *        - How to control program flow with `if`, `else if`, and `else`
- *        statements. [3]
- *        - How to use the modern "enhanced" `switch` statement for clear,
- *        multi-branch logic. [1, 15]
- *        - The ternary operator for concise conditional assignments. [17]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac OperatorsAndFlowControl.java
+ * 2. Run: java OperatorsAndFlowControl
  */
 public class OperatorsAndFlowControl {
 
@@ -44,86 +17,50 @@ public class OperatorsAndFlowControl {
 
         // --- PART 1: OPERATORS ---
 
-        System.out.println("--- Arithmetic Operators ---");
-        int a = 10;
-        int b = 3;
-        System.out.println("a + b = " + (a + b)); // Addition
-        System.out.println("a - b = " + (a - b)); // Subtraction
-        System.out.println("a * b = " + (a * b)); // Multiplication
-        System.out.println("a / b = " + (a / b)); // Integer Division (discards remainder)
-        System.out.println("a % b = " + (a % b)); // Modulo (gives the remainder)
+        // Arithmetic operators perform calculations.
+        int score = 100;
+        int bonus = 15;
+        System.out.println("Final Score: " + (score + bonus)); // Addition
 
-        // Note on division: dividing two integers results in an integer.
-        // To get a precise decimal result, at least one operand must be a double.
-        double preciseA = 10.0;
-        System.out.println("preciseA / b = " + (preciseA / b)); // Floating-point division
+        int items = 10;
+        int people = 3;
+        System.out.println("Items per person: " + (items / people)); // Integer division (result is 3)
+        System.out.println("Items left over: " + (items % people)); // Modulo/remainder (result is 1)
 
-        System.out.println("\n--- Relational Operators ---");
-        // These operators compare two values and result in a boolean (true or false).
-        int score1 = 95;
-        int score2 = 100;
-        System.out.println("score1 > score2: " + (score1 > score2)); // Greater than
-        System.out.println("score1 < score2: " + (score1 < score2)); // Less than
-        System.out.println("score1 == 95: " + (score1 == 95)); // Equal to
-        System.out.println("score1 != 100: " + (score1 != 100)); // Not equal to
-        System.out.println("score2 >= 100: " + (score2 >= 100)); // Greater than or equal to
+        // --- PART 2: FLOW CONTROL (MAKING DECISIONS) ---
 
-        System.out.println("\n--- Logical Operators ---");
-        // These operators combine boolean expressions.
-        boolean hasHighscore = true;
-        boolean hasCompletedGame = false;
+        System.out.println("\n--- The if-else Statement ---");
+        int userAge = 20;
+        boolean hasLicense = true;
 
-        // Logical AND (&&): true only if BOTH operands are true.
-        System.out.println("Has highscore AND completed game? " + (hasHighscore && hasCompletedGame));
-
-        // Logical OR (||): true if AT LEAST ONE operand is true.
-        System.out.println("Has highscore OR completed game? " + (hasHighscore || hasCompletedGame));
-
-        // Logical NOT (!): inverts the boolean value.
-        System.out.println("NOT completed game? " + !hasCompletedGame);
-
-        // Short-Circuiting: Logical operators && and || are "short-circuiting".
-        // For `&&`, if the first operand is false, the second is never evaluated. [2,
-        // 5]
-        // For `||`, if the first operand is true, the second is never evaluated. [2, 5]
-        // This is efficient and can prevent errors (e.g., checking for null before
-        // using an object).
-
-        // --- PART 2: FLOW CONTROL ---
-
-        System.out.println("\n--- The if-else Ladder ---");
-        int userAge = 18;
-
-        if (userAge < 13) {
-            System.out.println("You are a child.");
-        } else if (userAge >= 13 && userAge < 18) { // `else if` checks another condition [4]
-            System.out.println("You are a teenager.");
-        } else { // The `else` block is a final catch-all if no other condition was met [9]
-            System.out.println("You are an adult.");
+        // `if` checks a condition. Logical AND `&&` requires both to be true.
+        if (userAge >= 18 && hasLicense) {
+            System.out.println("You are eligible to drive.");
+        } else if (userAge < 18) {
+            System.out.println("You are too young to drive.");
+        } else {
+            // This 'else' block is the catch-all for any other case.
+            System.out.println("You are old enough, but you need a license.");
         }
 
-        System.out.println("\n--- Modern switch Statement (Java 14+) ---");
-        // The `switch` statement is ideal for checking one variable against multiple
-        // possible values. [11]
-        // The modern "arrow" syntax (`->`) is cleaner and safer (prevents accidental
-        // "fall-through"). [1, 15]
-        String day = "WEDNESDAY";
-        String dayType = switch (day.toUpperCase()) {
-            case "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY" -> "Weekday";
-            case "SATURDAY", "SUNDAY" -> "Weekend";
-            default -> "Invalid day"; // The default case is required for exhaustive switches [10]
+        System.out.println("\n--- The modern `switch` Statement ---");
+        // A `switch` is perfect for checking one variable against multiple possible
+        // values.
+        // The modern arrow syntax `->` (Java 14+) is clean and recommended.
+        String userRole = "ADMIN";
+        String permissions = switch (userRole) {
+            case "ADMIN" -> "Full Access";
+            case "EDITOR" -> "Can write content";
+            case "VIEWER" -> "Read-only access";
+            default -> "Unknown Role"; // A `default` case handles all other values.
         };
-        System.out.println(day + " is a " + dayType);
+        System.out.println("Your permissions: " + permissions);
 
-        // Pattern Matching in Switch (Java 21): Switch can now handle more than just
-        // constants. [1, 18]
-        // This is a powerful feature we will revisit later.
-
-        System.out.println("\n--- Ternary Operator ---");
-        // A compact, one-line if-else statement.
+        System.out.println("\n--- The Ternary Operator ---");
+        // A compact, one-line shortcut for a simple if-else assignment.
         // Syntax: condition ? value_if_true : value_if_false;
-        int currentScore = 75;
-        String resultMessage = (currentScore >= 60) ? "You passed!" : "You failed.";
-        System.out.println("Your result: " + resultMessage);
+        int balance = 500;
+        String accountStatus = (balance > 0) ? "Active" : "Inactive";
+        System.out.println("Account Status: " + accountStatus);
     }
 }

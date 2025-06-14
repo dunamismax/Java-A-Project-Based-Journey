@@ -1,199 +1,146 @@
 /**
- * @file 13_AbstractClassesAndInterfaces.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson explains how to define "contracts" for your classes using
+ * Abstract Classes and Interfaces. These are essential tools for building
+ * flexible and scalable applications.
  *
- * @brief Defines contracts and templates using Abstract Classes and Interfaces.
+ * An ABSTRACT CLASS:
+ * - Is a template for related classes (an "is-a" relationship, e.g., a Dog is
+ * an Animal).
+ * - Cannot be instantiated directly. It's an incomplete blueprint.
+ * - Can contain both implemented methods and `abstract` methods that subclasses
+ * MUST implement.
  *
- * ---
+ * An INTERFACE:
+ * - Is a pure contract of capabilities (a "can-do" relationship, e.g., a Car
+ * can be Driveable).
+ * - Defines what a class can do, but not how.
+ * - A class `implements` an interface, promising to provide the required
+ * methods.
  *
- * ## Defining Contracts: Abstract Classes and Interfaces
- *
- * Sometimes, we want to create a class hierarchy where a base class defines a general concept
- * but is too abstract to be instantiated itself. For example, what would it mean to create a
- * generic "Shape" object? What would its area be?
- *
- * To handle this, Java provides two powerful mechanisms for defining "contracts" that other
- * classes must follow: **abstract classes** and **interfaces**. They allow you to enforce
- * that certain methods must be implemented by subclasses, forming the basis for powerful,
- * pluggable, and polymorphic designs. [3, 4]
- *
- * ### What you will learn:
- * - **Abstract Classes**: How to create a class that cannot be instantiated and is meant to be a base for subclasses.
- * - **Abstract Methods**: How to declare a method without a body, forcing subclasses to provide the implementation.
- * - **Interfaces**: How to define a pure contract of behaviors that any class can promise to implement.
- * - The key differences between `extends` (for classes) and `implements` (for interfaces).
- * - When to choose an abstract class versus an interface. [12, 17]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac AbstractClassesAndInterfaces.java
+ * 2. Run: java AbstractClassesAndInterfaces
  */
 
-// --- PART 1: ABSTRACT CLASSES ---
-// An abstract class establishes an "is-a" relationship.
-// It can provide both abstract methods (contracts) and concrete methods (shared code).
-
-/**
- * @brief A blueprint for any shape. It's `abstract` because a generic "Shape"
- *        cannot exist on its own; it must be a specific type like a Circle or
- *        Square.
- */
-abstract class Shape {
-    protected String name;
-
-    public Shape(String name) {
-        this.name = name;
+// --- PART 1: ABSTRACT CLASS ---
+// Establishes a template for a family of related classes.
+abstract class Payable {
+    // An abstract class can have fields and implemented methods, just like a
+    // regular class.
+    public String getPayeeName() {
+        return "Generic Payee";
     }
 
-    // A CONCRETE method: This has an implementation and is inherited by all
-    // subclasses.
-    public void displayInfo() {
-        System.out.println("This is a shape named: " + this.name);
-    }
-
-    // An ABSTRACT method: It has no body (no `{}`). It's a contract.
-    // Any non-abstract class that extends Shape MUST provide an implementation for
-    // this method. [1, 2]
-    public abstract double calculateArea();
+    // An ABSTRACT method has no body. It's a contract that any concrete subclass
+    // MUST implement.
+    public abstract double getPaymentAmount();
 }
 
 // Concrete subclass 1
-class Circle extends Shape {
-    private double radius;
+class Invoice extends Payable {
+    private int quantity;
+    private double pricePerItem;
 
-    public Circle(String name, double radius) {
-        super(name);
-        this.radius = radius;
+    public Invoice(int quantity, double pricePerItem) {
+        this.quantity = quantity;
+        this.pricePerItem = pricePerItem;
     }
 
-    // We MUST implement the abstract method from the parent.
+    // We MUST implement the abstract method from the Payable class.
     @Override
-    public double calculateArea() {
-        return Math.PI * radius * radius;
+    public double getPaymentAmount() {
+        return quantity * pricePerItem;
     }
 }
 
 // Concrete subclass 2
-class Rectangle extends Shape {
-    private double width;
-    private double height;
+class SalariedEmployee extends Payable {
+    private double weeklySalary;
 
-    public Rectangle(String name, double width, double height) {
-        super(name);
-        this.width = width;
-        this.height = height;
-    }
-
-    // We MUST implement the abstract method from the parent.
-    @Override
-    public double calculateArea() {
-        return width * height;
-    }
-}
-
-// --- PART 2: INTERFACES ---
-// An interface defines a "can-do" capability. A class `implements` an interface
-// to promise it has that capability. It's a pure 100% abstract contract
-// (pre-Java 8).
-
-/**
- * @brief Defines a contract for any object that can be "drawable" on a screen.
- *        An interface only specifies what a class should do, not how.
- */
-interface Drawable {
-    // All methods in an interface are `public abstract` by default. [9, 11]
-    void draw();
-
-    // All fields in an interface are `public static final` by default (constants).
-    String RENDER_ENGINE = "OpenGL";
-
-    // Since Java 8, interfaces can have `default` methods with implementations.
-    // This allows adding new functionality to interfaces without breaking existing
-    // classes. [18]
-    default void getRenderingEngine() {
-        System.out.println("Drawing with engine: " + RENDER_ENGINE);
-    }
-}
-
-// A `Player` is not a `Drawable`, but it "can-do" drawing. It has the Drawable
-// capability.
-class Player implements Drawable {
-    private String playerName;
-
-    public Player(String name) {
-        this.playerName = name;
-    }
-
-    // This class MUST implement the `draw` method from the Drawable interface.
-    @Override
-    public void draw() {
-        System.out.println("Drawing player: " + playerName);
-    }
-}
-
-// A `Button` is also a completely unrelated object that can be drawn.
-class Button implements Drawable {
-    private String label;
-
-    public Button(String label) {
-        this.label = label;
+    public SalariedEmployee(double weeklySalary) {
+        this.weeklySalary = weeklySalary;
     }
 
     @Override
-    public void draw() {
-        System.out.println("Drawing a UI button with label: '" + label + "'");
+    public String getPayeeName() {
+        return "Salaried Employee";
+    }
+
+    // We MUST implement the abstract method.
+    @Override
+    public double getPaymentAmount() {
+        return weeklySalary;
     }
 }
 
-// --- Main Application Class ---
+// --- PART 2: INTERFACE ---
+// Defines a capability that can be applied to completely unrelated classes.
+interface Loggable {
+    // An interface method is a pure contract. Any class that implements Loggable
+    // must provide this method.
+    String getLogMessage();
+}
+
+// This class tracks user actions. It's a Loggable thing.
+class UserAction implements Loggable {
+    private String username;
+    private String action;
+
+    public UserAction(String username, String action) {
+        this.username = username;
+        this.action = action;
+    }
+
+    @Override
+    public String getLogMessage() {
+        return "USER_ACTION: " + username + " performed action: " + action;
+    }
+}
+
+// This class represents a system error. It's also a Loggable thing, but
+// unrelated to UserAction.
+class SystemEvent implements Loggable {
+    private String eventMessage;
+
+    public SystemEvent(String eventMessage) {
+        this.eventMessage = eventMessage;
+    }
+
+    @Override
+    public String getLogMessage() {
+        return "SYSTEM_EVENT: " + this.eventMessage;
+    }
+}
+
 public class AbstractClassesAndInterfaces {
     public static void main(String[] args) {
 
-        System.out.println("--- DEMONSTRATING ABSTRACT CLASSES ---");
-        // The following line would be a COMPILE ERROR. You cannot instantiate an
-        // abstract class. [1]
-        // Shape genericShape = new Shape("generic");
+        System.out.println("--- Demonstrating Abstract Classes ---");
+        // The following line is a COMPILE ERROR because you cannot create an object
+        // from an abstract class.
+        // Payable genericItem = new Payable();
 
-        // We can, however, use it as a polymorphic type.
-        Shape myCircle = new Circle("My Circle", 10.0);
-        Shape myRectangle = new Rectangle("My Rectangle", 4.0, 5.0);
+        // We can use the abstract class as a polymorphic type to hold its concrete
+        // children.
+        Payable[] itemsToPay = new Payable[2];
+        itemsToPay[0] = new Invoice(10, 25.50); // This is an Invoice
+        itemsToPay[1] = new SalariedEmployee(1500.00); // This is a SalariedEmployee
 
-        myCircle.displayInfo(); // Calling a concrete method from the abstract parent.
-        System.out.printf("Area of %s is %.2f%n", myCircle.name, myCircle.calculateArea());
-
-        myRectangle.displayInfo();
-        System.out.printf("Area of %s is %.2f%n", myRectangle.name, myRectangle.calculateArea());
-
-        System.out.println("\n\n--- DEMONSTRATING INTERFACES ---");
-        // Create objects that have the "Drawable" capability.
-        Drawable player = new Player("Hero");
-        Drawable loginButton = new Button("Login");
-
-        // We can create a collection of things that are all Drawable.
-        Drawable[] gameObjects = { player, loginButton };
-
-        // We can now process them all uniformly based on their shared capability.
-        for (Drawable obj : gameObjects) {
-            obj.draw(); // Calls the specific implementation for Player or Button.
-            obj.getRenderingEngine(); // Calls the default method from the interface.
+        for (Payable item : itemsToPay) {
+            // Java calls the correct getPaymentAmount() for each object.
+            System.out.printf("Paying %s an amount of $%.2f%n", item.getPayeeName(), item.getPaymentAmount());
         }
 
-        /*
-         * --- WHEN TO USE WHICH? A QUICK GUIDE ---
-         *
-         * Use an ABSTRACT CLASS when:
-         * - You have a strong "is-a" relationship between classes.
-         * - You want to share code (concrete methods) and state (fields) among closely
-         * related classes.
-         * - You need to have non-public members (`private`, `protected`).
-         * - A class can only EXTEND ONE abstract class.
-         *
-         * Use an INTERFACE when:
-         * - You have a "can-do" or "has-a" capability that can apply to unrelated
-         * classes.
-         * - You want to define a contract for behavior without dictating
-         * implementation.
-         * - You need a class to inherit from multiple sources (a class can IMPLEMENT
-         * MANY interfaces).
-         * - You want to achieve a high degree of decoupling between components.
-         */
+        System.out.println("\n--- Demonstrating Interfaces ---");
+        // Create a collection of things that share the "Loggable" capability.
+        Loggable[] itemsToLog = new Loggable[2];
+        itemsToLog[0] = new UserAction("Alice", "LOGIN_SUCCESS");
+        itemsToLog[1] = new SystemEvent("Database connection timed out.");
+
+        System.out.println("Processing system logs:");
+        for (Loggable item : itemsToLog) {
+            // We can process them all uniformly based on their shared capability.
+            System.out.println("LOG: " + item.getLogMessage());
+        }
     }
 }

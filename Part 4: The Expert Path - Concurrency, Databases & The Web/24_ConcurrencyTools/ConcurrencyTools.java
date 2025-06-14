@@ -1,29 +1,18 @@
 
 /**
- * @file 24_ConcurrencyTools.java
- * @author dunamismax
- * @date 2025-06-11
+ * This lesson moves beyond basic threads to the professional tools needed to
+ * write safe and efficient concurrent applications.
  *
- * @brief Moves beyond basic threads to professional concurrency tools for preventing race conditions and managing thread pools.
+ * We will solve two key problems of multithreading:
+ * 1.  **Inefficient Thread Management:** Constantly creating `new Thread()` is expensive.
+ *     SOLUTION: Use an `ExecutorService` to manage a reusable pool of threads.
+ * 2.  **Data Corruption (Race Conditions):** Uncontrolled access to shared data
+ *     leads to unpredictable results.
+ *     SOLUTION: Use Synchronization (`synchronized` or `Atomic` variables).
  *
- * ---
- *
- * ## From Chaos to Control: Professional Concurrency
- *
- * In the last lesson, we saw how multithreading can lead to chaos. When multiple threads
- * try to modify the same shared data, we get a **race condition**, resulting in corrupted data
- * and unpredictable outcomes. To write correct concurrent programs, we must control access
- * to shared resources. This control is called **synchronization**.
- *
- * This lesson introduces the essential tools provided by Java's `java.util.concurrent` package
- * to write safe, robust, and efficient multithreaded applications. We will solve the race
- * condition from the previous lesson and learn the modern way to manage threads.
- *
- * ### What you will learn:
- * - **`ExecutorService`**: The modern, preferred way to manage a pool of threads, avoiding the cost of creating new threads for every task. [1, 2, 3]
- * - **The `synchronized` keyword**: The classic Java mechanism to create a "mutex" (mutual exclusion), ensuring only one thread can execute a block of code at a time. [5, 8]
- * - **`Atomic` Variables**: High-performance, thread-safe classes (like `AtomicInteger`) that are perfect for simple counters and flags, often avoiding the need for heavier locks. [10, 12]
- *
+ * HOW TO RUN THIS FILE:
+ * 1. Compile: javac ConcurrencyTools.java
+ * 2. Run:     java ConcurrencyTools
  */
 
 import java.util.concurrent.ExecutorService;
@@ -31,28 +20,33 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-// --- 1. The Unsafe Counter (The Problem) ---
-class UnsafeCounter {
+// --- A common interface for our counter examples ---
+interface Counter {
+    void increment();
+
+    int getCount();
+}
+
+// --- 1. The Problem: An Unsafe, Non-Thread-Safe Counter ---
+class UnsafeCounter implements Counter {
     private int count = 0;
 
     public void increment() {
         count++;
-    }
+    } // Not atomic, subject to race conditions
 
     public int getCount() {
         return count;
     }
 }
 
-// --- 2. Solution using `synchronized` ---
-class SynchronizedCounter {
+// --- 2. Solution A: The `synchronized` Keyword ---
+// `synchronized` acts as a lock, ensuring only one thread can execute this
+// method on the same object at any given time. It is a simple but effective way
+// to ensure thread safety, though it can have performance costs.
+class SynchronizedCounter implements Counter {
     private int count = 0;
 
-    // The `synchronized` keyword ensures that only one thread can execute this
-    // method
-    // on a given instance of SynchronizedCounter at a time. It acquires the
-    // object's
-    // intrinsic lock, executes the code, and then releases the lock. [5, 8]
     public synchronized void increment() {
         count++;
     }
@@ -62,17 +56,16 @@ class SynchronizedCounter {
     }
 }
 
-// --- 3. Solution using Atomic Variables ---
-class AtomicCounter {
-    // AtomicInteger is a thread-safe class. Its operations, like
-    // `incrementAndGet()`,
-    // are "atomic", meaning they happen as a single, indivisible operation without
-    // interference from other threads. [10, 12]
+// --- 3. Solution B: Atomic Variables (Modern & Often Faster) ---
+// `AtomicInteger` is a class designed for thread-safe, lock-free operations
+// on a single integer. It is highly optimized and often preferred for simple
+// counters or flags.
+class AtomicCounter implements Counter {
     private final AtomicInteger count = new AtomicInteger(0);
 
     public void increment() {
-        count.incrementAndGet(); // This operation is thread-safe.
-    }
+        count.incrementAndGet();
+    } // This operation is atomic
 
     public int getCount() {
         return count.get();
@@ -82,65 +75,45 @@ class AtomicCounter {
 public class ConcurrencyTools {
 
     public static void main(String[] args) throws InterruptedException {
+        // We will run the same test on three different counter implementations.
+        runConcurrencyTest("1. Unsafe Counter", new UnsafeCounter());
+        runConcurrencyTest("2. Synchronized Counter", new SynchronizedCounter());
+        runConcurrencyTest("3. Atomic Counter", new AtomicCounter());
+    }
 
+    /**
+     * A helper method to run a standardized concurrency test on any Counter
+     * implementation.
+     */
+    private static void runConcurrencyTest(String testName, Counter counter) throws InterruptedException {
+        System.out.println("\n--- Running Test: " + testName + " ---");
         final int NUM_THREADS = 4;
         final int INCREMENTS_PER_THREAD = 10000;
-        final int EXPECTED_RESULT = NUM_THREADS * INCREMENTS_PER_THREAD;
+        final int EXPECTED_VALUE = NUM_THREADS * INCREMENTS_PER_THREAD;
 
-        // --- DEMO 1: The Race Condition using an ExecutorService ---
-        System.out.println("--- 1. Demonstrating the Race Condition ---");
-        // An ExecutorService manages a pool of threads. It's far more efficient
-        // than creating `new Thread()` for every small task. [1, 2, 3]
+        // Use an ExecutorService to manage a pool of threads.
+        // This is more efficient than creating `new Thread()` every time.
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
-        UnsafeCounter unsafeCounter = new UnsafeCounter();
 
-        // Submit tasks to the thread pool for execution.
+        // Submit tasks to the thread pool.
         for (int i = 0; i < NUM_THREADS; i++) {
             executor.submit(() -> {
                 for (int j = 0; j < INCREMENTS_PER_THREAD; j++) {
-                    unsafeCounter.increment();
+                    counter.increment();
                 }
             });
         }
-        // It's crucial to shut down the executor service. `shutdown()` stops it from
-        // accepting new tasks, and `awaitTermination` blocks until all running tasks
-        // finish. [4]
-        executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
-        System.out.println("Expected value: " + EXPECTED_RESULT);
-        System.out.println("Unsafe counter value: " + unsafeCounter.getCount() + " (INCORRECT due to race condition)");
 
-        // --- DEMO 2: Solving with `synchronized` ---
-        System.out.println("\n--- 2. Solving with the `synchronized` keyword ---");
-        executor = Executors.newFixedThreadPool(NUM_THREADS);
-        SynchronizedCounter synchronizedCounter = new SynchronizedCounter();
-        for (int i = 0; i < NUM_THREADS; i++) {
-            executor.submit(() -> {
-                for (int j = 0; j < INCREMENTS_PER_THREAD; j++) {
-                    synchronizedCounter.increment();
-                }
-            });
-        }
-        executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
-        System.out.println("Expected value: " + EXPECTED_RESULT);
-        System.out.println("Synchronized counter value: " + synchronizedCounter.getCount() + " (Correct)");
+        // It's crucial to shut down the executor gracefully.
+        executor.shutdown(); // Stops accepting new tasks.
+        executor.awaitTermination(1, TimeUnit.MINUTES); // Waits for running tasks to finish.
 
-        // --- DEMO 3: Solving with `AtomicInteger` ---
-        System.out.println("\n--- 3. Solving with AtomicInteger (Modern & Preferred for counters) ---");
-        executor = Executors.newFixedThreadPool(NUM_THREADS);
-        AtomicCounter atomicCounter = new AtomicCounter();
-        for (int i = 0; i < NUM_THREADS; i++) {
-            executor.submit(() -> {
-                for (int j = 0; j < INCREMENTS_PER_THREAD; j++) {
-                    atomicCounter.increment();
-                }
-            });
+        System.out.println("Expected final value: " + EXPECTED_VALUE);
+        System.out.println("Actual final value:   " + counter.getCount());
+        if (counter.getCount() == EXPECTED_VALUE) {
+            System.out.println("Result: CORRECT!");
+        } else {
+            System.out.println("Result: INCORRECT due to a race condition!");
         }
-        executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.MINUTES);
-        System.out.println("Expected value: " + EXPECTED_RESULT);
-        System.out
-                .println("Atomic counter value: " + atomicCounter.getCount() + " (Correct and often more performant)");
     }
 }
