@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://your-image-url-here.png" alt="Java Journey Banner" width="800"/>
+  <img src="https://e2ehiring.com/_next/image?url=https%3A%2F%2Fe2ehiring-cms-assets.s3.ap-south-1.amazonaws.com%2FLogo_6_1ededc4ca8.png&w=3840&q=75" alt="Java Journey Banner" width="800"/>
   <h1>⭐ Java: A Project-Based Journey ⭐</h1>
   <p>
     <b>A comprehensive, open-source curriculum that guides you from "Hello, World" to building and deploying production-grade, cloud-native microservices.</b>
